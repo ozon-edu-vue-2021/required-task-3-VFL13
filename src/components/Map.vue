@@ -33,6 +33,7 @@ export default {
     };
   },
   mounted() {
+    this.isLoading = true;
     // Выбираем svg с картой и вешаем обработчик клика.
     this.svgMap = d3.select(this.$refs.mapSvg);
     this.svgMap.on("click", this.clickBG);
@@ -46,6 +47,7 @@ export default {
     } else {
       console.error("map svg don't have g element");
     }
+    this.isLoading = false;
   },
   methods: {
     clickBG() {
