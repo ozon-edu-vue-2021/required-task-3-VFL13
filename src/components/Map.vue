@@ -30,6 +30,7 @@ export default {
       gMap: null,
       svgWorkPlace: null,
       workPlaces: [],
+      selectedPlace: null
     };
   },
   mounted() {
@@ -52,10 +53,28 @@ export default {
   methods: {
     clickBG() {
       this.$emit("hide-user-info");
+      console.log(this.selectedPlace);
+      if (this.selectedPlace)
+      {
+        this.gMap.select(`[table_id='${this.selectedPlace.id}']`)
+          .attr("fill", this.selectedPlace.color)
+      }
     },
-    clickWP(user_id) {
+    clickWP(user_id, color) {
       // При клике на рабочее место, передаем его ID.
+      if (this.selectedPlace)
+        {
+          this.gMap.select(`[table_id='${this.selectedPlace.id}']`)
+            .attr("fill", this.selectedPlace.color)
+        }
+      this.selectedPlace = {
+        id: user_id,
+        color: color
+      }
+      this.gMap.select(`[table_id='${user_id}']`)
+        .attr("fill", "black").attr("fill", "lime")
       this.$emit("show-user-info", user_id);
+
     },
     drawTable() {
       // создаем группу рабочих мест
@@ -67,6 +86,7 @@ export default {
       // В группе размещаем рабочие места, стилизуем, добавляем обработчик клика.
 
       this.workPlaces.map((place) => {
+        const color = legend.find((it) => it.group_id === place.group_id)?.color
         svgWorkPlacesGroup
           .append("g")
           .attr(
@@ -75,17 +95,17 @@ export default {
               place.rotate || 0
             }) scale(0.5)`
           )
-          .attr("id", place.id)
+          .attr("table_id", place._id)
           .classed("employer-place", true)
           .attr("group_id", place.group_id)
           .html(this.svgWorkPlace.html())
           .attr(
             "fill",
-            legend.find((it) => it.group_id === place.group_id)?.color
+            color
           )
           .on("click", (event) => {
             event.stopPropagation();
-            this.clickWP(place._id);
+            this.clickWP(place._id, color);
           });
       });
     },
